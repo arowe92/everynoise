@@ -1,5 +1,5 @@
-const log = require('../log');
-const { Track } = require('../db');
+const log = require('../src/log');
+const { Track } = require('../src/db');
 
 async function run () {
   log.info('Downloading all mp3s');

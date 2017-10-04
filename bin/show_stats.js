@@ -1,5 +1,5 @@
-const log = require('../log');
-const { Genre, Track } = require('../db');
+const log = require('../src/log');
+const { Genre, Track } = require('../src/db');
 
 const perc = (n1, n2) => `(${Math.round(100 * n1/n2)}%)`.yellow;
 

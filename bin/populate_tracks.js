@@ -1,6 +1,6 @@
-const log = require('../log');
-const { getTracksFromGenre, addMetadataToTracks } = require('../scraper.js');
-const { Genre, Track } = require('../db');
+const log = require('../src/log');
+const { getTracksFromGenre, addMetadataToTracks } = require('../src/scraper.js');
+const { Genre, Track } = require('../src/db');
 
 async function run () {
   log.info('Getting all Tracks...')

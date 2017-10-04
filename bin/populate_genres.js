@@ -1,6 +1,6 @@
-const log = require('../log');
-const { getAllGenres } = require('../scraper.js');
-const { Genre } = require('../db');
+const log = require('../src/log');
+const { getAllGenres } = require('../src/scraper.js');
+const { Genre } = require('../src/db');
 
 async function run () {
   log.info('Getting all genres...')
