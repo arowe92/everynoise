@@ -1,0 +1,19 @@
+{
+  "scripts": {
+    "stats": "node ./bin/show_stats.js",
+    "genres:populate": "node ./bin/populate_genres.js",
+    "tracks:populate": "node ./bin/populate_tracks.js",
+    "tracks:metadata": "node ./bin/populate_metadata.js",
+    "tracks:download": "node ./bin/download_tracks.js"
+  },
+  "dependencies": {
+    "audio-loader": "^1.0.3",
+    "cheerio": "^1.0.0-rc.2",
+    "colour": "^0.7.1",
+    "fft-js": "0.0.11",
+    "mongoose": "^4.12.0",
+    "prettyjson": "^1.2.1",
+    "promise-control-flow": "^1.2.4",
+    "request-promise": "^0.1.2"
+  }
+}
