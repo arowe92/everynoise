@@ -3,7 +3,9 @@ const path = require('path');
 const log = require('easy-fun-log');
 const _ = require('lodash')
 const wav = require('node-wav');
+const { loadMidiFile } = require('./midi');
 
+// Defaults
 let SAMPLE_RATE = 44100;
 let CHANNELS = 2;
 
@@ -107,6 +109,7 @@ function createEmptySong(duration) {
   return channelData;
 }
 
+// resamples a song from one rate to another
 function resample(channelData, sourceRate, targetRate=SAMPLE_RATE) {
   // Duration of sample
   let duration = channelData[0].length / sourceRate;
@@ -141,10 +144,19 @@ function resampleWav(sample, targetRate=44100) {
 function loadSample(fileName, absolute=false) {
   let name = fileName;
 
+  // Check if path is absolute or an alias
+  if (fileName.indexOf('/') != -1) {
+    absolute = true;
+  }
+
   if (!absolute) {
     fileName = path.join(__dirname, '../../media', fileName);
+  }
+
+  if (fileName.split('.').pop() != 'wav') {
     fileName += '.wav';
   }
+
 
   // Load file data
   let fileData = fs.readFileSync(fileName);
@@ -164,16 +176,17 @@ function loadSample(fileName, absolute=false) {
 }
 
 // Write wav to a file
-function writeChannelData(channelData, fileName, options = {
+function writeChannelData(channelData, fileName='output.wav', options = {
   sampleRate: SAMPLE_RATE,
   float: true,
   bitDepth: 32,
 }) {
 
   let data = wav.encode(channelData, options);
-  fs.writeFileSync('output/output.wav', data);
+  fs.writeFileSync(fileName, data);
 }
 
+// Offset channel Data by a duration in seconds
 function offsetChannelData (channelData, secondsOffset, sampleRate=SAMPLE_RATE) {
   // Total duration of the sample with the silence before
   let totalDuration = channelData[0].length / sampleRate + secondsOffset;
@@ -197,6 +210,7 @@ function offsetChannelData (channelData, secondsOffset, sampleRate=SAMPLE_RATE) 
   });
 }
 
+// wrapper function for samples
 function offsetSample(sample, secondsOffset) {
   return _.assign({}, sample, {
     channelData: offsetChannelData(sample.channelData, secondsOffset, sample.sampleRate),
@@ -205,16 +219,96 @@ function offsetSample(sample, secondsOffset) {
   });
 }
 
-let wav1 = loadSample('ahem_x');
-let wav2 = loadSample('baseball_hit');
+// Load
+function createSampleFromJSON(json) {
+  return {
+    channelData: loadChannelDataFromJSON(json),
+    bitDepth: 32,
+    float: true,
+    sampleRate: SAMPLE_RATE,
+  }
+}
 
-// wav2 = offsetSample(wav2, 1);
-let wav3 = offsetSample(wav2, 1);
-wav3 = panSample(wav3, 0);
+// Loads a song from JSON format into channelData
+function loadChannelDataFromJSON(json) {
+  let beatsPerMeasure = json.beatsPerMeasure || 4;
 
-let wav4 = offsetSample(wav2, 2);
-wav4 = panSample(wav4, 0.5);
+  // Beats per second
+  let bps = json.bpm / 60;
 
-let out = combineChannelData([wav1.channelData, wav2.channelData, wav3.channelData, wav4.channelData], 2);
-out = normalizeChannelData(out);
-writeChannelData(out);
+  // Load samples
+  let samples = {};
+  for (let name in json.samples) {
+    samples[name] = loadSample(json.samples[name]);
+  }
+
+  // Make a list of all buffers that will be combined
+  let buffers = [];
+
+  // Add samples into buffers
+  for (let event of json.events) {
+    let sample = loadSample(event.sample);
+
+    sample = panSample(sample,event.pan);
+    sample = scaleSample(sample, event.volume);
+
+    // time offset
+    if (typeof event.offset == 'number') {
+      sample = offsetSample(sample, event.offset);
+
+    // Convert offset to beats
+    } else if (typeof event.offset == 'string') {
+      let [measure, beat] = event.offset.split(':').map(Number);
+      sample = offsetSample(sample, (--measure * beatsPerMeasure + beat) / bps);
+    }
+
+    // Add to list of buffers to be stacked
+    buffers.push(sample.channelData);
+
+    // if list gets too long, condense it
+    if (buffers.length > 100) {
+      let buffers = [combineChannelData(buffers)];
+    }
+  }
+
+  // Create song
+  let song = combineChannelData(buffers);
+
+  // Return noramlized Data
+  return normalizeChannelData(song);
+}
+
+let song = loadChannelDataFromJSON({
+  samples: {
+    hat: 'hat.wav',
+    kick: 'kick.wav',
+    snare: 'snare.wav',
+  },
+  bpm: 180,
+  beatsPerMeasure: 4,
+  events: [
+    {offset: '1:1', sample: 'kick', volume: 0.5, pan: 0.5},
+    {offset: '1:2', sample: 'hat', volume: 0.2, pan: 0.0},
+    {offset: '1:3', sample: 'snare', volume: 0.8, pan: 0.5},
+    {offset: '1:4', sample: 'hat', volume: 0.8, pan: 1.0},
+
+    {offset: '2:1', sample: 'kick', volume: 0.5, pan: 0.5},
+    {offset: '2:2', sample: 'hat', volume: 0.2, pan: 0.0},
+    {offset: '2:3', sample: 'snare', volume: 0.8, pan: 0.5},
+    {offset: '2:3.666', sample: 'hat', volume: 0.8, pan: 0.5},
+    {offset: '2:4.333', sample: 'hat', volume: 0.8, pan: 0.5},
+    {offset: '2:5.', sample: 'hat', volume: 0.8, pan: 0.5},
+    {offset: '2:5.666', sample: 'hat', volume: 0.8, pan: 0.5},
+    {offset: '2:6.333', sample: 'hat', volume: 0.8, pan: 0.5},
+    {offset: '2:7', sample: 'hat', volume: 0.8, pan: 0.5},
+
+    {offset: '3:1', sample: 'kick', volume: 0.5, pan: 0.5},
+    {offset: '3:3', sample: 'snare', volume: 0.8, pan: 0.5},
+  ]
+});
+
+writeChannelData(song);
+
+module.exports = {
+  createSampleFromJSON
+};
