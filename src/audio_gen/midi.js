@@ -1,13 +1,5 @@
 let fs = require('fs');
-let path = require('path');
-let lodash = require('lodash');
-let log = require('easy-fun-log');
 let MidiFileParser = require('midi-file-parser');
-
-let SAMPLES = {
-  67: 'ahem_x',
-  68: 'baseball_hit',
-};
 
 // Load a MIDI file into JSON
 function loadMidiFile(fileName, samples) {

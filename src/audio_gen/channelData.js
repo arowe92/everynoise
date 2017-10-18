@@ -1,6 +1,4 @@
-const fs = require('fs');
 const _ = require('lodash')
-const wav = require('node-wav');
 
 // Defaults
 let SAMPLE_RATE = 44100;
@@ -96,16 +94,6 @@ function resample(channelData, sourceRate, targetRate=SAMPLE_RATE) {
   return output;
 }
 
-// Write wav to a file
-function writeToFile(channelData, fileName='output.wav') {
-  let data = wav.encode(channelData, {
-    sampleRate: SAMPLE_RATE,
-    float: true,
-    bitDepth: 32,
-  });
-  fs.writeFileSync(fileName, data);
-}
-
 // Offset channel Data by a duration in seconds
 function offset (channelData, secondsOffset, sampleRate=SAMPLE_RATE) {
   // Total duration of the sample with the silence before
@@ -135,7 +123,6 @@ module.exports = {
   pan,
   scale,
   offset,
-  writeToFile,
   combine,
   resample,
 }

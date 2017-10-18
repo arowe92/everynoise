@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "test": "mocha",
     "stats": "node ./bin/show_stats.js",
     "genres:populate": "node ./bin/populate_genres.js",
     "tracks:populate": "node ./bin/populate_tracks.js",
@@ -19,5 +20,9 @@
     "promise-control-flow": "^1.2.4",
     "request-promise": "^0.1.2",
     "wav": "^1.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1"
   }
 }
