@@ -3,7 +3,7 @@ const prettyjson = require('prettyjson');
 
 colour.setTheme({
   info: 'green',
-  warn: ['yellow', 'underline'],
+  warn: ['yellow'],
   error: 'red bold',
   debug: 'green bold',
   number: 'blue',

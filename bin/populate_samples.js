@@ -28,17 +28,18 @@ async function run () {
     } catch (e) {
       errors++;
 
-      if (e.code != 11000) {
+      if (e.code != 11000 && e.code != 11001) {
         log.error(e.message);
       }
 
       if (!codes[e.code]) {
         codes[e.code] = 0;
       }
+
       codes[e.code]++;
     }
 
-    if (success + errors % 25 == 0) {
+    if (Number(success + errors) % 20 == 0) {
       log.error(success + errors, '/', files.length);
     }
   }

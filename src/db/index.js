@@ -6,7 +6,7 @@ const Track = require('./track');
 const Sample = require('./sample');
 
 // URL of the database
-const DB_URL = '192.168.0.223/everynoise';
+const DB_URL = 'rowe-linux/everynoise';
 
 // Open Connection
 const connection = mongoose.createConnection(DB_URL);

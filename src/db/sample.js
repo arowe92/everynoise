@@ -79,7 +79,21 @@ Sample.post('init', function(doc){
 /**************************
  * Static Methods
  *************************/
-Sample.statics.createFromFile = async function (fileName, type, tags=[]) {
+Sample.statics.findRandomOfType = async function (type) {
+  let n = Math.floor(Math.random() * (await this.count({type})));
+
+  log(n);
+  return this.find({type}).limit(n+1).skip(n);
+}
+
+Sample.statics.createFromFile = async function (fileName, type, tags=[], uniqueFilename=true) {
+
+  if (uniqueFilename && await this.count({loadedFrom: fileName})) {
+    let e = new Error(`File Path Already Uploaded: ` + fileName);
+    // Mongoose code for duplicate
+    e.code = 11001;
+    throw e;
+  }
 
   // If type is not set, set it to parent folder
   if (!type) {
