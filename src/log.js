@@ -36,7 +36,7 @@ const _log = function (color='white') {
 
     // Object rendering
     else if (typeof arguments[i] === 'object') {
-      args[i - 1] = prettyjson.render(arguments[i]);
+      args[i - 1] = prettyjson.render(JSON.parse(JSON.stringify(arguments[i])));
     }
 
     // Number Coloring

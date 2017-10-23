@@ -73,17 +73,16 @@ Sample.pre('save', async function (next) {
 });
 
 Sample.post('init', function(doc){
-  doc.channelData = wav.decode(doc.wavData).channelData;
+  doc.channelData = wav.decode(new Buffer(doc.wavData.buffer)).channelData;
 });
 
 /**************************
  * Static Methods
  *************************/
-Sample.statics.findRandomOfType = async function (type) {
-  let n = Math.floor(Math.random() * (await this.count({type})));
-
-  log(n);
-  return this.find({type}).limit(n+1).skip(n);
+Sample.statics.findRandomOfType = async function (type, size=1) {
+  return this.aggregate({
+    $match: { type },
+  }).sample(size);
 }
 
 Sample.statics.createFromFile = async function (fileName, type, tags=[], uniqueFilename=true) {

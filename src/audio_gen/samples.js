@@ -92,6 +92,18 @@ function writeSampleToFile(sample, fileName='output.wav') {
   fs.writeFileSync(fileName, data);
 }
 
+function loadSampleFromWavData(wavData) {
+  //  decode the wav data
+  wavData = wav.decode(new Buffer(wavData.buffer));
+
+  // Keep track of its offset and volume
+  wavData.offset = 0;
+  wavData.volume = 1;
+
+  // Resample to 44100
+  return resampleSample(wavData);
+}
+
 // Loads a song from JSON format into channelData
 function loadSongFromJSON(json) {
   let beatsPerMeasure = json.beatsPerMeasure || 4;
@@ -102,7 +114,14 @@ function loadSongFromJSON(json) {
   // Load samples
   let samples = {};
   for (let name in json.samples) {
-    samples[name] = loadSampleFromFile(json.samples[name]);
+    // If channelData is present, its already a sample
+    if (json.samples[name].wavData) {
+      samples[name] = loadSampleFromWavData(json.samples[name].wavData);
+    } else {
+
+      // Otherwise, load it from a file
+      samples[name] = loadSampleFromFile(json.samples[name]);
+    }
   }
 
   // Make a list of all buffers that will be combined
@@ -122,6 +141,10 @@ function loadSongFromJSON(json) {
     // Convert offset to beats
     } else if (typeof event.offset == 'string') {
       let [measure, beat] = event.offset.split(':').map(Number);
+      sample = offsetSample(sample, (--measure * beatsPerMeasure + beat) / bps);
+
+    } else if (typeof event.measure == 'number') {
+      let {measure, beat} = event;
       sample = offsetSample(sample, (--measure * beatsPerMeasure + beat) / bps);
     }
 
