@@ -105,7 +105,7 @@ function loadSampleFromWavData(wavData) {
 }
 
 // Loads a song from JSON format into channelData
-function loadSongFromJSON(json) {
+function createSampleFromJSON(json) {
   let beatsPerMeasure = json.beatsPerMeasure || 4;
 
   // Beats per second
@@ -176,5 +176,5 @@ module.exports = {
   offsetSample,
   loadSampleFromFile,
   writeSampleToFile,
-  loadSongFromJSON,
+  createSampleFromJSON,
 };

@@ -85,6 +85,20 @@ Sample.statics.findRandomOfType = async function (type, size=1) {
   }).sample(size);
 }
 
+Sample.statics.findRandomOfTypes = async function (types) {
+  if (typeof types == 'undefined') {
+    types = await this.distinct('type');
+  }
+  
+  let samples = {};
+
+  for (let t of types) {
+    samples[t] = (await this.findRandomOfType(t))[0];
+  }
+
+  return samples;
+}
+
 Sample.statics.createFromFile = async function (fileName, type, tags=[], uniqueFilename=true) {
 
   if (uniqueFilename && await this.count({loadedFrom: fileName})) {

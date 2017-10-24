@@ -5,7 +5,7 @@ let fs = require('fs');
 
 let samples = require('../src/audio_gen').samples;
 
-let song = samples.loadSongFromJSON({
+let song = samples.createSampleFromJSON({
   samples: {
     hat: './test/media/hat.wav',
     kick: './test/media/kick.wav',
