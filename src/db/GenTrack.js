@@ -12,7 +12,10 @@ let GenTrack = new Schema({
   beatsPerMeasure: Number,
   bpm: Number,
   events: [{
-    sample: String,
+    sample: {
+      type: String,
+      required: true,
+    },
     offset: Number,
     volume: Number,
     pan: Number,

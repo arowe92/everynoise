@@ -7,7 +7,7 @@ const Sample = require('./sample');
 const GenTrack = require('./GenTrack');
 
 // URL of the database
-const DB_URL = 'localhost/everynoise';
+const DB_URL = process.env.EVERYNOISE_DB || 'localhost/everynoise';
 
 // Open Connection
 const connection = mongoose.createConnection(DB_URL);

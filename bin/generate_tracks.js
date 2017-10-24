@@ -4,8 +4,8 @@ const { Sample, GenTrack } = require('../src/db');
 
 async function run () {
   let samples = await Sample.findRandomOfTypes();
-  let track = await GenTrack.createRandom(samples);
 
+  let track = await GenTrack.createRandom(samples);
   await track.generateWavData();
   await track.save();
 }
