@@ -6,6 +6,7 @@ const fs = require('fs');
 const log = require('easy-fun-log');
 
 const { walkSync } = require('../utility/files');
+const calcSpectrogram = require('../audio_analysis').spectrogram;
 
 let Sample = new Schema({
   fileName: {
@@ -30,6 +31,12 @@ let Sample = new Schema({
   sampleRate: Number,
   channels: Number,
   wavData: Buffer,
+
+  spectrogram: {
+    frequencies: Array,
+    times: Array,
+    data: [Array],
+  },
 
   hash: {
     type: String,
@@ -73,7 +80,9 @@ Sample.pre('save', async function (next) {
 });
 
 Sample.post('init', function(doc){
-  doc.channelData = wav.decode(new Buffer(doc.wavData.buffer)).channelData;
+  if (doc.wavData) {
+    doc.channelData = wav.decode(new Buffer(doc.wavData.buffer)).channelData;
+  }
 });
 
 /**************************
@@ -148,8 +157,13 @@ Sample.statics.uploadDirectoryRecursive = function (dir, tags=[]) {
   });
 }
 
+
 /**************************
  * Instance Methods
  *************************/
+Sample.methods.calcSpectrogram = async function () {
+  this.fftData = await calcSpectrogram([this._id])[0];
+  return this;
+}
 
 module.exports = Sample;
